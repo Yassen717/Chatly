@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chatly - AI Chat Screen</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e1e2f",
+                        "bubble-ai-light": "#ffffff",
+                        "bubble-ai-dark": "#1e1e2f",
+                        "text-secondary": "#9ca3af",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "1.5rem",
+                        "xl": "2rem",
+                        "2xl": "2.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px -5px rgba(19, 19, 236, 0.5)',
+                        'glow-sm': '0 0 10px -3px rgba(19, 19, 236, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.4);
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black text-white font-display antialiased h-screen w-full flex justify-center items-center overflow-hidden">
+<!-- Mobile Frame (Simulating iOS Phone Form Factor) -->
+<div class="relative flex flex-col h-full w-full max-w-md mx-auto bg-background-light dark:bg-background-dark overflow-hidden md:h-[95vh] md:rounded-[3rem] md:border-[8px] md:border-[#1a1a1a] md:shadow-2xl ring-1 ring-white/10">
+<!-- iOS Status Bar Simulation -->
+<div class="h-12 w-full bg-background-light dark:bg-background-dark flex items-end justify-between px-6 pb-2 text-[15px] font-semibold text-black dark:text-white select-none z-30 shrink-0">
+<span>9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-symbols-outlined text-[18px] filled">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[18px] filled">wifi</span>
+<span class="material-symbols-outlined text-[18px] filled">battery_full</span>
+</div>
+</div>
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between px-4 py-3 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md sticky top-0 z-20 border-b border-gray-200 dark:border-white/5 shrink-0">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-black dark:text-white">arrow_back_ios_new</span>
+</button>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="relative">
+<div class="size-10 rounded-full bg-gradient-to-br from-[#4facfe] to-primary p-0.5 shadow-glow-sm">
+<div class="h-full w-full rounded-full bg-black/20 backdrop-blur-sm bg-center bg-cover" data-alt="Futuristic glowing AI robot avatar face" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCYH7SrhmIOye8MvlSNvfJ0QMaTfUgygeuCKKUByHFyhZ8dKfbR-c0I7TlNtJpwi5EI5Xui4IF3HZOi3RYLTQmbBIvdliI8a3Hh5lQ_sUfeRKArV03AotvBtas32Dl0g5t2ZWA6aKsADSNDN5mRYCcKbUgtE1SYzcqUOt7PnZ7sLIhO81BJK1C7aTjkoAKPJmIwguscOzq0kW2G1CCVQqtGeApfTxpNIhzatZPukctceVgJpZil2khZAXzhcKRRSUXM4uY8CXkt-CuD');"></div>
+</div>
+<div class="absolute bottom-0 right-0 size-3 bg-[#00ff9d] rounded-full border-2 border-background-light dark:border-background-dark ring-1 ring-black/10"></div>
+</div>
+<div class="flex flex-col">
+<h2 class="text-base font-bold text-black dark:text-white leading-tight tracking-tight">Chatly</h2>
+<span class="text-xs text-primary font-medium flex items-center gap-1">
+                            Online
+                        </span>
+</div>
+</div>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-black dark:text-white">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<!-- Conversation Area -->
+<main class="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-background-light dark:bg-background-dark scroll-smooth">
+<!-- Date Seperator -->
+<div class="flex justify-center sticky top-0 z-0 opacity-0 animate-[fadeIn_0.5s_ease-in_forwards]">
+<span class="text-[11px] font-medium text-text-secondary bg-black/5 dark:bg-white/5 px-3 py-1 rounded-full backdrop-blur-sm">Today</span>
+</div>
+<!-- SingleMessage: AI (Greeting) -->
+<div class="flex items-end gap-3 group animate-[slideInUp_0.4s_ease-out]">
+<div class="size-8 rounded-full bg-gradient-to-br from-[#4facfe] to-primary shrink-0 p-[1px] self-end mb-1">
+<div class="h-full w-full rounded-full bg-white dark:bg-black bg-center bg-cover" data-alt="Small AI avatar icon" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOfTthoG6NMkiFrJmDYv8YvkVaZzzDi7TaayyM2jiXH9gMpbKG0vHgf2R8M2sKeR5tlNw-5xTdGXOGIo_qTh4cpug1PEpGQXkBp-fWDplqDy99RwRjul4nviGt0wVV5khrWfv45YWNdDEXjEYEyvN7o3yoY0tQVI_rJ6sK4e_J_7ZNvIiLHvfraXOLm90ucGgQhbUYRHpq_8hemMaQyquoUOxF4OkTFqVl1TVn2Md6cVjr_6SZuqawNd6zHtoUqtHLZ0-JxRlL0h2V');"></div>
+</div>
+<div class="flex flex-col gap-1 max-w-[85%] sm:max-w-[75%]">
+<span class="text-[11px] text-text-secondary ml-4 font-medium">Chatly</span>
+<div class="p-4 rounded-2xl rounded-bl-none bg-surface-light dark:bg-bubble-ai-dark shadow-sm text-black dark:text-white text-[15px] leading-relaxed border border-gray-100 dark:border-white/5">
+<p>Hello! I'm Chatly. How can I help you today?</p>
+</div>
+</div>
+</div>
+<!-- SingleMessage: User -->
+<div class="flex items-end justify-end gap-3 animate-[slideInUp_0.4s_ease-out_0.1s_both]">
+<div class="flex flex-col gap-1 items-end max-w-[85%] sm:max-w-[75%]">
+<div class="p-4 rounded-2xl rounded-br-none bg-primary text-white text-[15px] leading-relaxed shadow-glow-sm">
+<p>I need help planning a trip to Japan.</p>
+</div>
+<span class="text-[11px] text-text-secondary mr-1 flex items-center gap-1 opacity-70">
+                        9:42 AM
+                        <span class="material-symbols-outlined text-[14px]">done_all</span>
+</span>
+</div>
+</div>
+<!-- SingleMessage: AI -->
+<div class="flex items-end gap-3 group animate-[slideInUp_0.4s_ease-out_0.2s_both]">
+<div class="size-8 rounded-full bg-gradient-to-br from-[#4facfe] to-primary shrink-0 p-[1px] self-end mb-1">
+<div class="h-full w-full rounded-full bg-white dark:bg-black bg-center bg-cover" data-alt="Small AI avatar icon" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDP2r0es1deHn_ej-zEeCMKvLt7MLpMBGhT-iMLq55jgtFm-coOm6mLj0fmp0zPo_H0OaweA3njDIrR_WvISWy1Ur2-58IeV5Eop7gzfA4JBapGubNv1YbMMii8bOIaVlHS14T8UfqbrdxkxkhtR-3J10Y-MLfudTU21nj_p1IXtRrRMr8DPSoZy-jMeYBqUMKnOBiID2ZhuKuRc9XkN7WVPo1wq_GjKiYB5nfhOIBbl4zHK-uHNChYkbKIRmJUlW-M3B9a0zlkWM3I');"></div>
+</div>
+<div class="flex flex-col gap-1 max-w-[85%] sm:max-w-[75%]">
+<span class="text-[11px] text-text-secondary ml-4 font-medium">Chatly</span>
+<div class="p-4 rounded-2xl rounded-bl-none bg-surface-light dark:bg-bubble-ai-dark shadow-sm text-black dark:text-white text-[15px] leading-relaxed border border-gray-100 dark:border-white/5">
+<p>That sounds exciting! 🇯🇵 Japan is beautiful. <br/><br/>I can certainly help with that. What time of year are you thinking of going?</p>
+</div>
+</div>
+</div>
+<!-- SingleMessage: User -->
+<div class="flex items-end justify-end gap-3 animate-[slideInUp_0.4s_ease-out_0.3s_both]">
+<div class="flex flex-col gap-1 items-end max-w-[85%] sm:max-w-[75%]">
+<div class="p-4 rounded-2xl rounded-br-none bg-primary text-white text-[15px] leading-relaxed shadow-glow-sm">
+<p>Thinking about Spring for the cherry blossoms!</p>
+</div>
+<span class="text-[11px] text-text-secondary mr-1 flex items-center gap-1 opacity-70">
+                        9:43 AM
+                        <span class="material-symbols-outlined text-[14px]">done</span>
+</span>
+</div>
+</div>
+<!-- AI Typing Indicator (Loading state) -->
+<div class="flex items-end gap-3 group animate-[slideInUp_0.4s_ease-out_0.4s_both]">
+<div class="size-8 rounded-full bg-gradient-to-br from-[#4facfe] to-primary shrink-0 p-[1px] self-end mb-1">
+<div class="h-full w-full rounded-full bg-white dark:bg-black bg-center bg-cover" data-alt="Small AI avatar icon" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC5j-1D0QDEgj526Mv35v5dlE7LBZqC_7e0f5ZwHjOhqK9kIi7-_iRFI1CTNvY0Nn6eENG1ggCOQCcSqgpMVbBVMMWb1YQFGVNoE_ByZAbd10QGI3H2sRURJEU-G6Gt9DJsJfjWvopiVtSl3ri_odsfnbLESXJO151E040mUQcaPTmIwoFhnILFA7GVQTlGcudxhWMe0r6W0PUb0TZ4tkVeXckmNqBuTJOsDtDoTpBThIWNyxi7GXOu9GPSn2xZ5A-TpjCWfwnHAjmO');"></div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="px-4 py-3 rounded-2xl rounded-bl-none bg-surface-light dark:bg-bubble-ai-dark shadow-sm flex items-center gap-1.5 h-12 border border-gray-100 dark:border-white/5 w-fit">
+<div class="w-2 h-2 bg-primary rounded-full animate-[bounce_1.4s_infinite_ease-in-out_-0.32s]"></div>
+<div class="w-2 h-2 bg-primary rounded-full animate-[bounce_1.4s_infinite_ease-in-out_-0.16s]"></div>
+<div class="w-2 h-2 bg-primary rounded-full animate-[bounce_1.4s_infinite_ease-in-out]"></div>
+</div>
+</div>
+</div>
+<!-- Spacer specifically to allow content to scroll above the floating dock -->
+<div class="h-6 w-full"></div>
+</main>
+<!-- Composer / Input Dock -->
+<div class="p-4 bg-background-light dark:bg-background-dark/80 backdrop-blur-xl border-t border-gray-200 dark:border-white/5 pb-8 shrink-0 z-30">
+<div class="flex items-end gap-3">
+<!-- Accessory Button -->
+<button class="flex-shrink-0 size-11 rounded-full bg-gray-200 dark:bg-surface-dark hover:bg-gray-300 dark:hover:bg-white/10 transition-colors flex items-center justify-center text-text-secondary dark:text-white/70 group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">add</span>
+</button>
+<!-- Text Input -->
+<div class="flex-1 bg-gray-200 dark:bg-surface-dark rounded-[24px] flex items-center px-4 py-2 min-h-[44px] border-2 border-transparent focus-within:border-primary/50 transition-all shadow-inner">
+<input autocomplete="off" class="w-full bg-transparent border-none text-black dark:text-white placeholder-text-secondary focus:ring-0 py-1 text-[16px]" placeholder="Message Chatly..." type="text"/>
+<button class="ml-2 p-1 text-text-secondary hover:text-primary transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+<!-- Send Button -->
+<button class="flex-shrink-0 size-11 rounded-full bg-primary hover:bg-[#0000d0] active:scale-95 transition-all flex items-center justify-center text-white shadow-glow">
+<span class="material-symbols-outlined filled text-[20px]">arrow_upward</span>
+</button>
+</div>
+<!-- Home Indicator Space -->
+<div class="mt-6 flex justify-center">
+<div class="w-32 h-1.5 bg-black/20 dark:bg-white/20 rounded-full"></div>
+</div>
+</div>
+</div>
+<style>
+        /* Animation utilities */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body></html>

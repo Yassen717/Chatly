@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chatly - Welcome Screen</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1313ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101022",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles to ensure full height on mobile */
+        html, body {
+            height: 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased overflow-hidden">
+<div class="relative flex h-full w-full flex-col justify-between max-w-md mx-auto shadow-2xl overflow-y-auto">
+<!-- Background decorative elements for modern feel -->
+<div class="absolute top-[-20%] left-[-10%] w-[300px] h-[300px] bg-primary/20 rounded-full blur-[100px] pointer-events-none z-0"></div>
+<div class="absolute bottom-[10%] right-[-10%] w-[250px] h-[250px] bg-primary/10 rounded-full blur-[80px] pointer-events-none z-0"></div>
+<!-- Header -->
+<div class="relative z-10 flex items-center justify-center pt-12 pb-4 px-6">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center bg-primary/10 rounded-xl p-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 28px;">spark</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">Chatly</h2>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
+<!-- Hero Visual Area -->
+<div class="w-full relative aspect-square max-w-[320px] mb-8 flex items-center justify-center">
+<!-- Abstract Orb Representation -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent rounded-full blur-2xl opacity-50 animate-pulse"></div>
+<div class="relative w-full h-full rounded-full overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-white/5 to-white/0 backdrop-blur-sm p-8">
+<div class="w-full h-full bg-center bg-cover rounded-full" data-alt="Abstract glowing 3d blue wave sphere representing artificial intelligence" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBm-SBZbA3y9XqUHWr0C6lvwr9Ufn9M4S93whbGmGhrAzODnif3QqRPvSIc6zMUmEjPJSlZTWRSyJhHh3ZZDfevaTUyW9Xmy_4XhJ0L3Kxm7TncxK6bYKwWJqEv7GaVbADCERhZPGFg5BJxBv2R8utE0D3qyNPMV0FHbSJj0gCNvV8Q6kd1211lLwfSI2ajEKYmovpnBluaias97aR6LZ7XuxA7Z-rkMiwzy1PMf6z9Ev2ZjMVWsJteWRY-Z0XQX4K-WquIPIbDyrUf");'>
+</div>
+</div>
+<!-- Floating Feature Badge 1 -->
+<div class="absolute top-4 left-0 bg-background-light dark:bg-background-dark/80 backdrop-blur-md border border-white/10 rounded-full py-2 px-4 shadow-lg flex items-center gap-2 transform -rotate-6">
+<span class="material-symbols-outlined text-primary text-sm">bolt</span>
+<span class="text-xs font-semibold">Fast</span>
+</div>
+<!-- Floating Feature Badge 2 -->
+<div class="absolute bottom-10 right-0 bg-background-light dark:bg-background-dark/80 backdrop-blur-md border border-white/10 rounded-full py-2 px-4 shadow-lg flex items-center gap-2 transform rotate-3">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+<span class="text-xs font-semibold">Creative</span>
+</div>
+</div>
+<!-- Text Content -->
+<div class="w-full text-center space-y-4 max-w-xs mx-auto">
+<h1 class="text-3xl font-bold tracking-tight leading-tight">
+                    Your Personal <br/>
+<span class="text-primary">AI Companion</span>
+</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base leading-relaxed">
+                    Chatly understands you. Get instant answers, writing help, and creative ideas in seconds.
+                </p>
+</div>
+<!-- Page Indicators -->
+<div class="flex flex-row items-center justify-center gap-2 mt-8">
+<div class="h-2 w-8 rounded-full bg-primary transition-all duration-300"></div>
+<div class="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-300"></div>
+<div class="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-300"></div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="relative z-10 w-full px-6 pb-10 pt-4 space-y-4">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-semibold text-lg py-4 px-6 rounded-full shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group">
+                Get Started
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<div class="text-center">
+<button class="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-primary dark:hover:text-primary transition-colors">
+                    Already have an account? <span class="text-slate-900 dark:text-white underline decoration-slate-300 dark:decoration-slate-700 underline-offset-4">Log in</span>
+</button>
+</div>
+<!-- Home Indicator Area Spacing -->
+<div class="h-2 w-full"></div>
+</div>
+</div>
+</body></html>

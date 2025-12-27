@@ -41,3 +41,7 @@ app-example
 # generated native folders
 /ios
 /android
+assets/chat_screen/
+assets/conversation_history/
+assets/settings_screen/
+assets/welcome_screen/

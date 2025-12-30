@@ -1,13 +1,39 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ProfileModal from '@/components/ProfileModal';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
   const [isDarkMode, setIsDarkMode] = React.useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Log Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              router.replace('/login');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to log out. Please try again.');
+            }
+          }
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -18,19 +44,28 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Profile Section */}
         <View style={styles.section}>
-          <View style={styles.profileCard}>
+          <Pressable style={styles.profileCard} onPress={() => setProfileModalVisible(true)}>
             <Image
-              source={{ uri: 'https://i.pravatar.cc/150?u=user_main' }}
+              source={{ 
+                uri: user?.avatar || 'https://i.pravatar.cc/150?u=user_main' 
+              }}
               style={styles.avatar}
+              onError={() => {
+                // Handle image load error
+                console.log('Failed to load avatar');
+              }}
             />
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>Alex Morgan</Text>
-              <Text style={styles.profileEmail}>alex.morgan@example.com</Text>
+              <Text style={styles.profileName}>{user?.name || 'User'}</Text>
+              <Text style={styles.profileEmail}>{user?.email || 'user@example.com'}</Text>
             </View>
-            <Pressable style={styles.editProfileButton}>
+            <Pressable 
+              style={styles.editProfileButton}
+              onPress={() => setProfileModalVisible(true)}
+            >
               <IconSymbol name="pencil" size={20} color="#2B4BFF" />
             </Pressable>
-          </View>
+          </Pressable>
         </View>
 
         {/* Preferences Section */}
@@ -83,10 +118,16 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        <Pressable style={styles.logoutButton} onPress={() => router.replace('/login')}>
+        <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Log Out</Text>
         </Pressable>
       </ScrollView>
+
+      {/* Profile Modal */}
+      <ProfileModal 
+        visible={profileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }

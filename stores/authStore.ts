@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { firebaseService, FirebaseUser } from '@/services/firebaseService';
+// import { firebaseService, FirebaseUser } from '@/services/firebaseService';
 
 export interface User {
   id: string;
@@ -27,7 +27,7 @@ interface AuthState {
 }
 
 // Convert Firebase user to app user
-const convertFirebaseUser = (firebaseUser: FirebaseUser | null): User | null => {
+const convertFirebaseUser = (firebaseUser: any | null): User | null => {
   if (!firebaseUser) return null;
 
   return {
@@ -50,14 +50,19 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
-          const firebaseUser = await firebaseService.signIn(email, password);
-          if (!firebaseUser) {
-            throw new Error('Failed to sign in');
-          }
+          // TODO: Replace with actual Firebase authentication
+          // For now, simulate successful login
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const mockUser: User = {
+            id: '1',
+            firebaseUid: '1',
+            email,
+            name: email.split('@')[0],
+          };
 
-          const user = convertFirebaseUser(firebaseUser);
           set({ 
-            user, 
+            user: mockUser, 
             isAuthenticated: true, 
             isLoading: false 
           });
@@ -73,14 +78,19 @@ export const useAuthStore = create<AuthState>()(
       signup: async (name: string, email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
-          const firebaseUser = await firebaseService.signUp(email, password, name);
-          if (!firebaseUser) {
-            throw new Error('Failed to create account');
-          }
+          // TODO: Replace with actual Firebase authentication
+          // For now, simulate successful signup
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const mockUser: User = {
+            id: '1',
+            firebaseUid: '1',
+            email,
+            name,
+          };
 
-          const user = convertFirebaseUser(firebaseUser);
           set({ 
-            user, 
+            user: mockUser, 
             isAuthenticated: true, 
             isLoading: false 
           });
@@ -96,7 +106,9 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         set({ isLoading: true, error: null });
         try {
-          await firebaseService.signOut();
+          // TODO: Replace with actual Firebase signOut
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
           set({ 
             user: null, 
             isAuthenticated: false, 
@@ -117,15 +129,15 @@ export const useAuthStore = create<AuthState>()(
           const updatedUser = { ...user, ...userData };
           set({ user: updatedUser });
           
-          // Update Firebase profile if needed
-          if (userData.name || userData.avatar) {
-            firebaseService.updateProfile({
-              displayName: userData.name,
-              photoURL: userData.avatar,
-            }).catch(error => {
-              console.error('Failed to update Firebase profile:', error);
-            });
-          }
+          // TODO: Update Firebase profile if needed
+          // if (userData.name || userData.avatar) {
+          //   firebaseService.updateProfile({
+          //     displayName: userData.name,
+          //     photoURL: userData.avatar,
+          //   }).catch(error => {
+          //     console.error('Failed to update Firebase profile:', error);
+          //   });
+          // }
         }
       },
 
@@ -140,7 +152,8 @@ export const useAuthStore = create<AuthState>()(
       resetPassword: async (email: string) => {
         set({ isLoading: true, error: null });
         try {
-          await firebaseService.resetPassword(email);
+          // TODO: Replace with actual Firebase reset password
+          await new Promise(resolve => setTimeout(resolve, 1000));
           set({ isLoading: false });
         } catch (error: any) {
           set({ 
@@ -152,17 +165,23 @@ export const useAuthStore = create<AuthState>()(
       },
 
       initializeAuth: () => {
-        // Set up auth state listener
-        const unsubscribe = firebaseService.onAuthStateChanged((firebaseUser) => {
-          const user = convertFirebaseUser(firebaseUser);
-          set({ 
-            user, 
-            isAuthenticated: !!firebaseUser 
-          });
-        });
+        // TODO: Set up Firebase auth state listener
+        // const unsubscribe = firebaseService.onAuthStateChanged((firebaseUser) => {
+        //   const user = convertFirebaseUser(firebaseUser);
+        //   set({ 
+        //     user, 
+        //     isAuthenticated: !!firebaseUser 
+        //   });
+        // });
 
         // Store unsubscribe function for cleanup if needed
-        (set as any)._unsubscribe = unsubscribe;
+        // (set as any)._unsubscribe = unsubscribe;
+        
+        // For now, check if user exists in storage
+        const { user } = get();
+        if (user) {
+          set({ isAuthenticated: true });
+        }
       },
     }),
     {

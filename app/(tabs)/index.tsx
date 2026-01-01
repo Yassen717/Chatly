@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useChatStore } from '@/stores/chatStore';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -98,8 +99,17 @@ const HISTORY_SECTIONS = [
 
 export default function ConversationHistoryScreen() {
   const router = useRouter();
+  const { conversations, createConversation, setActiveConversation } = useChatStore();
 
   const handleChatPress = (id: string) => {
+    setActiveConversation(id);
+    router.push('/chat');
+  };
+
+  const handleNewChat = () => {
+    // Create new conversation and navigate
+    const newId = createConversation();
+    // setTimeout to allow store update to propagate? usually synchronous
     router.push('/chat');
   };
 
@@ -110,7 +120,12 @@ export default function ConversationHistoryScreen() {
         styles.pinnedCard,
         item.type === 'bot' ? { backgroundColor: item.color } : { backgroundColor: '#1e1e2d', borderWidth: 1, borderColor: '#2d2d40' },
       ]}
-      onPress={() => handleChatPress(item.id)}>
+      onPress={() => {
+        if (item.type === 'bot') {
+          // Logic for specific bot chats if any
+          handleNewChat();
+        }
+      }}>
       <View style={styles.pinnedHeader}>
         <View
           style={[
@@ -150,22 +165,25 @@ export default function ConversationHistoryScreen() {
     </Pressable>
   );
 
-  const renderHistoryItem = ({ item }: { item: any }) => (
+  const renderHistoryItem = (conversation: any) => (
     <Pressable
+      key={conversation.id}
       style={({ pressed }) => [styles.historyItem, pressed && styles.historyItemPressed]}
-      onPress={() => handleChatPress(item.id)}>
-      <View style={[styles.historyIconContainer, { backgroundColor: item.bgColor }]}>
-        <IconSymbol name={item.icon} size={24} color={item.color} />
+      onPress={() => handleChatPress(conversation.id)}>
+      <View style={[styles.historyIconContainer, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
+        <IconSymbol name="message.fill" size={24} color="#3b82f6" />
       </View>
       <View style={styles.historyContent}>
         <View style={styles.historyHeader}>
           <Text style={styles.historyTitle} numberOfLines={1}>
-            {item.title}
+            {conversation.title}
           </Text>
-          <Text style={styles.historyTime}>{item.time}</Text>
+          <Text style={styles.historyTime}>
+            {new Date(conversation.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
         </View>
         <Text style={styles.historyPreview} numberOfLines={1}>
-          {item.preview}
+          {conversation.lastMessage || 'No messages yet'}
         </Text>
       </View>
     </Pressable>
@@ -201,22 +219,23 @@ export default function ConversationHistoryScreen() {
         </View>
 
         {/* History List */}
-        {HISTORY_SECTIONS.map((section) => (
-          <View key={section.title} style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <View style={styles.sectionList}>
-              {section.data.map((item) => (
-                <View key={item.id}>{renderHistoryItem({ item })}</View>
-              ))}
-            </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Recent</Text>
+          <View style={styles.sectionList}>
+            {conversations.length === 0 ? (
+              <Text style={{ color: '#94a3b8', textAlign: 'center', marginTop: 20 }}>No conversations yet</Text>
+            ) : (
+              conversations.map((conv) => renderHistoryItem(conv))
+            )}
           </View>
-        ))}
+        </View>
+
         {/* Spacer for bottom nav */}
         <View style={{ height: 80 }} />
       </ScrollView>
 
       {/* FAB */}
-      <Pressable style={styles.fab} onPress={() => router.push('/chat')}>
+      <Pressable style={styles.fab} onPress={handleNewChat}>
         <IconSymbol name="plus" size={28} color="#FFFFFF" />
       </Pressable>
     </SafeAreaView>

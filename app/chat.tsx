@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useChatStore } from '@/stores/chatStore';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -6,81 +7,41 @@ import {
     KeyboardAvoidingView,
     Platform,
     Pressable,
-    SafeAreaView,
     StyleSheet,
     Text,
     TextInput,
-    View,
+    View
 } from 'react-native';
 import Animated, { FadeInUp, FadeOut } from 'react-native-reanimated';
-
-// Mock Initial Messages
-const INITIAL_MESSAGES = [
-    {
-        id: '1',
-        text: "Hello! I'm Chatly. How can I help you today?",
-        sender: 'ai',
-        time: '',
-    },
-    {
-        id: '2',
-        text: 'I need help planning a trip to Japan.',
-        sender: 'user',
-        time: '9:42 AM',
-    },
-    {
-        id: '3',
-        text: 'That sounds exciting! 🇯🇵 Japan is beautiful.\n\nI can certainly help with that. What time of year are you thinking of going?',
-        sender: 'ai',
-        time: '',
-    },
-    {
-        id: '4',
-        text: 'Thinking about Spring for the cherry blossoms!',
-        sender: 'user',
-        time: '9:43 AM',
-    },
-];
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ChatScreen() {
     const router = useRouter();
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState<any[]>(INITIAL_MESSAGES);
-    const [isTyping, setIsTyping] = useState(true);
+    const { activeConversationId, getConversation, sendMessage, isLoading } = useChatStore();
+    const activeConversation = activeConversationId ? getConversation(activeConversationId) : null;
+    const messages = activeConversation?.messages || [];
+
+    // We should probably redirect if no active conversation, but for now let's handle new chat creation in store
+
     const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
-        // Scroll to bottom on mount
-        setTimeout(() => {
-            flatListRef.current?.scrollToEnd({ animated: true });
-        }, 500);
-    }, []);
+        // Scroll to bottom on updates
+        if (messages.length > 0) {
+            setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+        }
+    }, [messages.length]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!message.trim()) return;
 
-        const newMessage = {
-            id: Date.now().toString(),
-            text: message,
-            sender: 'user',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-
-        setMessages((prev) => [...prev, newMessage]);
+        const text = message;
         setMessage('');
-        setIsTyping(true);
 
-        // Simulate AI response
-        setTimeout(() => {
-            setIsTyping(false);
-            const aiResponse = {
-                id: (Date.now() + 1).toString(),
-                text: "That's a great choice! Spring (March-May) is peak season. You should book early.",
-                sender: 'ai',
-                time: '',
-            };
-            setMessages((prev) => [...prev, aiResponse]);
-        }, 2000);
+        await sendMessage(text, activeConversationId || undefined);
     };
 
     const renderMessage = ({ item, index }: { item: any, index: number }) => {
@@ -89,7 +50,7 @@ export default function ChatScreen() {
 
         return (
             <Animated.View
-                entering={FadeInUp.delay(index * 100).springify()}
+                entering={FadeInUp.delay(50).springify()}
                 style={[
                     styles.messageRow,
                     isUser ? styles.rowUser : styles.rowAi
@@ -119,7 +80,9 @@ export default function ChatScreen() {
 
                 {isUser && (
                     <View style={styles.metaContainer}>
-                        <Text style={styles.timestamp}>{item.time}</Text>
+                        <Text style={styles.timestamp}>
+                            {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
                         <IconSymbol name="checkmark.circle.fill" size={14} color="rgba(255,255,255,0.4)" />
                     </View>
                 )}
@@ -168,8 +131,14 @@ export default function ChatScreen() {
                     renderItem={renderMessage}
                     contentContainerStyle={styles.messagesList}
                     showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <IconSymbol name="message.fill" size={48} color="rgba(255,255,255,0.1)" />
+                            <Text style={styles.emptyText}>Start a new conversation</Text>
+                        </View>
+                    }
                     ListFooterComponent={
-                        isTyping ? (
+                        isLoading ? (
                             <Animated.View entering={FadeInUp} exiting={FadeOut} style={styles.typingContainer}>
                                 <View style={styles.avatarContainer}>
                                     <View style={styles.avatarGradient}>
@@ -460,5 +429,16 @@ const styles = StyleSheet.create({
     sendButtonDisabled: {
         backgroundColor: '#1e1e2f',
         opacity: 0.5,
+    },
+    emptyContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 100,
+        gap: 16,
+    },
+    emptyText: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 16,
     },
 });

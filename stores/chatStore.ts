@@ -1,81 +1,34 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 export interface Message {
   id: string;
   text: string;
   sender: 'user' | 'ai';
-  timestamp: Date;
-  conversationId: string;
-  metadata?: {
-    tokenCount?: number;
-    model?: string;
-    isError?: boolean;
-    isStreaming?: boolean;
-    streamId?: string;
-    partialText?: string;
-  };
+  timestamp: number;
 }
 
 export interface Conversation {
   id: string;
   title: string;
   messages: Message[];
-  createdAt: Date;
-  updatedAt: Date;
-  isPinned: boolean;
-  category?: string;
-  context?: {
-    systemPrompt?: string;
-    modelConfig?: {
-      temperature?: number;
-      topK?: number;
-      topP?: number;
-      maxTokens?: number;
-    };
-    messageLimit?: number;
-    tokenUsage?: {
-      total?: number;
-      prompt?: number;
-      completion?: number;
-    };
-  };
+  lastMessage?: string;
+  updatedAt: number;
 }
 
 interface ChatState {
   conversations: Conversation[];
   activeConversationId: string | null;
   isLoading: boolean;
-  error: string | null;
-  contextManager: {
-    maxTokens: number;
-    maxMessages: number;
-    systemPrompt: string;
-  };
-  
-  // Actions
-  createConversation: (title?: string, systemPrompt?: string) => string;
-  deleteConversation: (id: string) => void;
-  setActiveConversation: (id: string) => void;
-  addMessage: (conversationId: string, text: string, sender: 'user' | 'ai', metadata?: Message['metadata']) => void;
-  updateMessage: (conversationId: string, messageId: string, updates: Partial<Message>) => void;
-  updateConversationTitle: (id: string, title: string) => void;
-  togglePinConversation: (id: string) => void;
-  searchConversations: (query: string) => Conversation[];
-  getConversationContext: (conversationId: string, limit?: number) => Message[];
-  updateContextConfig: (conversationId: string, config: Partial<Conversation['context']>) => void;
-  clearOldMessages: (conversationId: string) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-}
 
-// Default context configuration
-const DEFAULT_CONTEXT = {
-  maxTokens: 4000,
-  maxMessages: 50,
-  systemPrompt: 'You are Chatly, a helpful AI assistant. You are friendly, knowledgeable, and always ready to help users with their questions, problems, or creative tasks. Keep your responses concise but comprehensive.',
-};
+  // Actions
+  setActiveConversation: (id: string | null) => void;
+  createConversation: () => string;
+  sendMessage: (text: string, conversationId?: string) => Promise<void>;
+  deleteConversation: (id: string) => void;
+  getConversation: (id: string) => Conversation | undefined;
+}
 
 export const useChatStore = create<ChatState>()(
   persist(
@@ -83,248 +36,112 @@ export const useChatStore = create<ChatState>()(
       conversations: [],
       activeConversationId: null,
       isLoading: false,
-      error: null,
-      contextManager: DEFAULT_CONTEXT,
 
-      createConversation: (title?: string, systemPrompt?: string) => {
-        const id = Date.now().toString();
+      setActiveConversation: (id) => set({ activeConversationId: id }),
+
+      createConversation: () => {
         const newConversation: Conversation = {
-          id,
-          title: title || 'New Chat',
+          id: Date.now().toString(),
+          title: 'New Chat',
           messages: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isPinned: false,
-          context: {
-            systemPrompt: systemPrompt || DEFAULT_CONTEXT.systemPrompt,
-            modelConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxTokens: 1024,
-            },
-            messageLimit: DEFAULT_CONTEXT.maxMessages,
-            tokenUsage: {
-              total: 0,
-              prompt: 0,
-              completion: 0,
-            },
-          },
+          updatedAt: Date.now(),
         };
 
-        set(state => ({
+        set((state) => ({
           conversations: [newConversation, ...state.conversations],
-          activeConversationId: id,
+          activeConversationId: newConversation.id,
         }));
 
-        return id;
+        return newConversation.id;
       },
 
-      deleteConversation: (id: string) => {
-        set(state => ({
-          conversations: state.conversations.filter(conv => conv.id !== id),
-          activeConversationId: state.activeConversationId === id 
-            ? null 
-            : state.activeConversationId,
-        }));
-      },
+      sendMessage: async (text: string, conversationId?: string) => {
+        const { activeConversationId, conversations } = get();
+        const targetId = conversationId || activeConversationId;
 
-      setActiveConversation: (id: string) => {
-        set({ activeConversationId: id });
-      },
+        if (!targetId) {
+          // Should initiate a new conversation if none exists
+          const id = get().createConversation();
+          // Recursive call with the new ID
+          return get().sendMessage(text, id);
+        }
 
-      addMessage: (conversationId: string, text: string, sender: 'user' | 'ai', metadata?: Message['metadata']) => {
-        const newMessage: Message = {
+        const userMessage: Message = {
           id: Date.now().toString(),
           text,
-          sender,
-          timestamp: new Date(),
-          conversationId,
-          metadata,
+          sender: 'user',
+          timestamp: Date.now(),
         };
 
-        set(state => ({
-          conversations: state.conversations.map(conv => {
-            if (conv.id === conversationId) {
-              const updatedMessages = [...conv.messages, newMessage];
-              
-              // Clear old messages if exceeding limit
-              const maxMessages = conv.context?.messageLimit || DEFAULT_CONTEXT.maxMessages;
-              const messagesToKeep = updatedMessages.slice(-maxMessages);
-              
-              // Update token usage
-              const tokenUsage = { ...(conv.context?.tokenUsage || { total: 0, prompt: 0, completion: 0 }) };
-              if (metadata?.tokenCount) {
-                if (sender === 'user') {
-                  tokenUsage.prompt = (tokenUsage.prompt || 0) + metadata.tokenCount;
-                } else {
-                  tokenUsage.completion = (tokenUsage.completion || 0) + metadata.tokenCount;
-                }
-                tokenUsage.total = (tokenUsage.total || 0) + metadata.tokenCount;
-              }
-
+        set((state) => {
+          const updatedConversations = state.conversations.map((conv) => {
+            if (conv.id === targetId) {
+              // Generate a title from the first message if it's "New Chat"
+              const newTitle = conv.messages.length === 0 ? (text.length > 30 ? text.substring(0, 30) + '...' : text) : conv.title;
               return {
                 ...conv,
-                messages: messagesToKeep,
-                updatedAt: new Date(),
-                context: {
-                  ...conv.context,
-                  tokenUsage,
-                },
+                messages: [...conv.messages, userMessage],
+                lastMessage: text,
+                updatedAt: Date.now(),
+                title: newTitle
               };
             }
             return conv;
-          }),
-        }));
-      },
+          });
 
-      updateMessage: (conversationId: string, messageId: string, updates: Partial<Message>) => {
-        set(state => ({
-          conversations: state.conversations.map(conv => {
-            if (conv.id === conversationId) {
-              return {
-                ...conv,
-                messages: conv.messages.map(msg => 
-                  msg.id === messageId ? { ...msg, ...updates } : msg
-                ),
-                updatedAt: new Date(),
-              };
-            }
-            return conv;
-          }),
-        }));
-      },
+          // Re-sort by updated time
+          updatedConversations.sort((a, b) => b.updatedAt - a.updatedAt);
 
-      updateConversationTitle: (id: string, title: string) => {
-        set(state => ({
-          conversations: state.conversations.map(conv =>
-            conv.id === id ? { ...conv, title, updatedAt: new Date() } : conv
-          ),
-        }));
-      },
-
-      togglePinConversation: (id: string) => {
-        set(state => ({
-          conversations: state.conversations.map(conv =>
-            conv.id === id ? { ...conv, isPinned: !conv.isPinned } : conv
-          ),
-        }));
-      },
-
-      searchConversations: (query: string) => {
-        const { conversations } = get();
-        if (!query.trim()) return conversations;
-
-        return conversations.filter(conv => {
-          const matchesTitle = conv.title.toLowerCase().includes(query.toLowerCase());
-          const matchesMessages = conv.messages.some(msg => 
-            msg.text.toLowerCase().includes(query.toLowerCase())
-          );
-          return matchesTitle || matchesMessages;
+          return { conversations: updatedConversations };
         });
+
+        // Simulate AI Response
+        set({ isLoading: true });
+
+        // Mock AI response delay
+        setTimeout(() => {
+          const aiMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: "I'm a simulated AI response. Eventually I'll be connected to a real API!",
+            sender: 'ai',
+            timestamp: Date.now(),
+          };
+
+          set((state) => {
+            const updatedConversations = state.conversations.map((conv) => {
+              if (conv.id === targetId) {
+                return {
+                  ...conv,
+                  messages: [...conv.messages, aiMessage],
+                  lastMessage: aiMessage.text,
+                  updatedAt: Date.now(),
+                };
+              }
+              return conv;
+            });
+
+            return {
+              conversations: updatedConversations,
+              isLoading: false
+            };
+          });
+        }, 1500);
       },
 
-      getConversationContext: (conversationId: string, limit = 10) => {
-        const { conversations } = get();
-        const conversation = conversations.find(conv => conv.id === conversationId);
-        
-        if (!conversation) return [];
-
-        // Return the last N messages for context
-        const recentMessages = conversation.messages.slice(-limit);
-        
-        // Include system prompt if available
-        if (conversation.context?.systemPrompt && recentMessages.length === 0) {
-          return [
-            {
-              id: 'system',
-              text: conversation.context.systemPrompt,
-              sender: 'ai' as const,
-              timestamp: new Date(),
-              conversationId,
-            },
-          ];
-        }
-
-        return recentMessages;
-      },
-
-      updateContextConfig: (conversationId: string, config: Partial<Conversation['context']>) => {
-        set(state => ({
-          conversations: state.conversations.map(conv =>
-            conv.id === conversationId 
-              ? { 
-                  ...conv, 
-                  context: { ...conv.context, ...config },
-                  updatedAt: new Date(),
-                }
-              : conv
-          ),
+      deleteConversation: (id) => {
+        set((state) => ({
+          conversations: state.conversations.filter((c) => c.id !== id),
+          activeConversationId: state.activeConversationId === id ? null : state.activeConversationId,
         }));
       },
 
-      clearOldMessages: (conversationId: string) => {
-        const { conversations } = get();
-        const conversation = conversations.find(conv => conv.id === conversationId);
-        
-        if (!conversation) return;
-
-        const maxMessages = conversation.context?.messageLimit || DEFAULT_CONTEXT.maxMessages;
-        if (conversation.messages.length > maxMessages) {
-          const messagesToKeep = conversation.messages.slice(-maxMessages);
-          
-          set(state => ({
-            conversations: state.conversations.map(conv =>
-              conv.id === conversationId 
-                ? { 
-                    ...conv, 
-                    messages: messagesToKeep,
-                    updatedAt: new Date(),
-                  }
-                : conv
-            ),
-          }));
-        }
-      },
-
-      setLoading: (loading: boolean) => {
-        set({ isLoading: loading });
-      },
-
-      setError: (error: string | null) => {
-        set({ error });
+      getConversation: (id) => {
+        return get().conversations.find((c) => c.id === id);
       },
     }),
     {
       name: 'chat-storage',
       storage: createJSONStorage(() => AsyncStorage),
-      // Custom serialization for Date objects
-      partialize: (state) => ({
-        ...state,
-        conversations: state.conversations.map(conv => ({
-          ...conv,
-          createdAt: conv.createdAt.toISOString(),
-          updatedAt: conv.updatedAt.toISOString(),
-          messages: conv.messages.map(msg => ({
-            ...msg,
-            timestamp: msg.timestamp.toISOString(),
-          })),
-        })),
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // Convert ISO strings back to Date objects
-          state.conversations = state.conversations.map(conv => ({
-            ...conv,
-            createdAt: new Date(conv.createdAt),
-            updatedAt: new Date(conv.updatedAt),
-            messages: conv.messages.map(msg => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-            })),
-          }));
-        }
-      },
     }
   )
 );

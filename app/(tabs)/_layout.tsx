@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginHorizontal: 16,
     marginBottom: Platform.OS === 'ios' ? 28 : 20,
-    height: 68,
-    paddingBottom: 6,
-    paddingTop: 6,
+    height: 74,
+    paddingBottom: 10,
+    paddingTop: 8,
     shadowColor: '#4facfe',
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.15,
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   tabBarItem: {
-    paddingTop: 10,
+    paddingTop: 6,
     gap: 4,
   },
   iconContainer: {

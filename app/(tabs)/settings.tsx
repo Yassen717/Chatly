@@ -1,10 +1,10 @@
+import ProfileModal from '@/components/ProfileModal';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ProfileModal from '@/components/ProfileModal';
-import { useAuthStore } from '@/stores/authStore';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -19,8 +19,8 @@ export default function SettingsScreen() {
       'Are you sure you want to log out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Log Out', 
+        {
+          text: 'Log Out',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -46,8 +46,8 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Pressable style={styles.profileCard} onPress={() => setProfileModalVisible(true)}>
             <Image
-              source={{ 
-                uri: user?.avatar || 'https://i.pravatar.cc/150?u=user_main' 
+              source={{
+                uri: user?.avatar || 'https://i.pravatar.cc/150?u=user_main'
               }}
               style={styles.avatar}
               onError={() => {
@@ -59,7 +59,7 @@ export default function SettingsScreen() {
               <Text style={styles.profileName}>{user?.name || 'User'}</Text>
               <Text style={styles.profileEmail}>{user?.email || 'user@example.com'}</Text>
             </View>
-            <Pressable 
+            <Pressable
               style={styles.editProfileButton}
               onPress={() => setProfileModalVisible(true)}
             >
@@ -124,7 +124,7 @@ export default function SettingsScreen() {
       </ScrollView>
 
       {/* Profile Modal */}
-      <ProfileModal 
+      <ProfileModal
         visible={profileModalVisible}
         onClose={() => setProfileModalVisible(false)}
       />
@@ -135,7 +135,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#06081A',
+    backgroundColor: '#101022',
   },
   header: {
     paddingHorizontal: 20,

@@ -28,13 +28,52 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: '#101022' },
           headerStyle: { backgroundColor: '#101022' },
           headerTintColor: '#fff',
+          animation: 'none',
+          presentation: 'card',
         }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'About Chatly' }} />
-        <Stack.Screen name="signup" options={{ headerShown: false }} />
-        <Stack.Screen name="chat" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+            animation: 'none',
+          }}
+        />
+        <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+            animation: 'none',
+          }}
+        />
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+            animation: 'none',
+          }}
+        />
+        <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'modal',
+            title: 'About Chatly',
+            animation: 'none',
+          }}
+        />
+        <Stack.Screen
+          name="signup"
+          options={{
+            headerShown: false,
+            animation: 'none',
+          }}
+        />
+        <Stack.Screen
+          name="chat"
+          options={{
+            headerShown: false,
+            animation: 'none',
+          }}
+        />
       </Stack>
       <StatusBar style="light" backgroundColor="#101022" />
     </ThemeProvider>

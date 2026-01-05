@@ -70,14 +70,14 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#06081A',
+    backgroundColor: '#101022',
   },
   container: {
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 18,
-    backgroundColor: '#06081A',
+    backgroundColor: '#101022',
   },
   header: {
     height: 44,
